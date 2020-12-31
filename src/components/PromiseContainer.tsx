@@ -16,7 +16,7 @@ const PromiseContainer: React.FC<PromiseContainerProps> = ({
       setRespone(response);
       setLoaded(true);
     });
-  });
+  }, []);
   return <div>{loaded ? generateComponentFunc(response) : "Loading..."}</div>;
 };
 

@@ -68,11 +68,12 @@ class AppPageMockService implements IAppPageService {
     });
   }
 
-  GetPages(from: number, take: number): Promise<AppPage[]> {
-    console.log(`GetPages ${from}-${take}`);
+  GetPages(searchText: string, from: number, take: number): Promise<AppPage[]> {
+    console.log(`GetPages ${searchText}-${from}-${take}`);
+    searchText = searchText.toLocaleLowerCase();
     return new Promise((resolve) => {
       setTimeout(
-        () => resolve(_.chain(allPages).drop(from).take(take).value()),
+        () => resolve(_.chain(allPages).filter(item => item.title.toLocaleLowerCase().includes(searchText)).drop(from).take(take).value()),
         simulatorDelayDuration
       );
     });
@@ -82,16 +83,7 @@ class AppPageMockService implements IAppPageService {
     keyword = keyword.toLocaleLowerCase();
     console.log(`SearchPages ${keyword}`);
     return new Promise((resolve, _) => {
-      // setTimeout(
-      //   () =>
-      //     resolve(
-      //       allPages.filter(
-      //         (page: AppPage) =>
-      //           page.title.toLocaleLowerCase().indexOf(keyword) >= 0
-      //       )
-      //     ),
-      //   simulatorDelayDuration
-      // );
+
       setTimeout(() => resolve(GetMyPagesSync()), simulatorDelayDuration);
     });
   }

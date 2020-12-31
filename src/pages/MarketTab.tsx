@@ -9,89 +9,109 @@ import {
   IonList,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
+  IonContent,
 } from "@ionic/react";
 import { search } from "ionicons/icons";
-import React, { useState, useEffect } from "react";
-import OnDemandPromiseContainer from "../components/OnDemandPromiseContainer";
-import PromiseContainer from "../components/PromiseContainer";
+import React, { useState, useEffect, ReactNode } from "react";
+import InfiniteScrollList from "../components/InfiniteScrollList";
 import { AppPageGeneralService } from "../services/AppPageService";
 import { AppPage } from "../services/IAppPageService";
 import PageTemplate from "./PageTemplate";
 
 const MarketTab: React.FC = () => {
-  const [keyword, setKeyword] = useState("");
-  const [data, setData] = useState<AppPage[]>([]);
-  const [paging, setPaging] = useState({ from: 0, to: 0, size: 10 });
   console.log("MarketTab init");
-  // const content = (
-  //   <>
-  //     <IonToolbar>
-  //       <IonSearchbar
-  //         value={keyword}
-  //         onIonChange={(e) => {
-  //           console.log("Searchbar changed", e);
-  //           setKeyword(e.detail.value!);
-  //         }}
-  //       ></IonSearchbar>
-  //     </IonToolbar>
-  //     <OnDemandPromiseContainer
-  //       requestDataFunc={AppPageGeneralService.SearchPages.bind(
-  //         undefined,
-  //         keyword
-  //       )}
-  //       generateComponentFunc={(appPages: AppPage[]) => (
-  //         <IonList>
-  //           {appPages.map((page) => (
-  //             <IonItem key={page.name} href={`pages/${page.name}`}>
-  //               <IonLabel>{page.title}</IonLabel>
-  //             </IonItem>
-  //           ))}
-  //         </IonList>
-  //       )}
-  //     ></OnDemandPromiseContainer>
-  //   </>
-  // );
-  useEffect(() => {});
-  let onIonInfinite = (event: any) => {
-    AppPageGeneralService.GetPages(paging.to, paging.size).then(
-      (items: AppPage[]) => {
-        data.push(...items);
-        setData(data);
-        setPaging({
-          from: paging.to,
-          to: paging.to + paging.size,
-          size: paging.size,
-        });
-      }
-    );
-    console.log("Done");
-    event.target.complete();
+  const [searchText, setSearchText] = useState("");
 
-    // App logic to determine if all data is loaded
-    // and disable the infinite scroll
-    if (data.length == 1000) {
-      event.target.disabled = true;
-    }
-  };
-  const content = (
+  const title = (
     <>
-      <IonInfiniteScroll onIonInfinite={onIonInfinite}>
-        <IonInfiniteScrollContent
-          loadingSpinner="bubbles"
-          loadingText="Loading more..."
-        >
-          <IonList>
-            {data.map((item: AppPage) => (
-              <IonItem key={item.name}>
-                <IonLabel>{item.title}</IonLabel>
-              </IonItem>
-            ))}
-          </IonList>
-        </IonInfiniteScrollContent>
-      </IonInfiniteScroll>
+      <IonLabel>Market</IonLabel>
+      <IonSearchbar
+        value={searchText}
+        onIonChange={(e) => {
+          setSearchText(e.detail.value!);
+          console.log("searchText changed", { searchText: e.detail.value! });
+        }}
+        debounce={1000}
+      ></IonSearchbar>
     </>
   );
-  return <PageTemplate title="Market" content={content}></PageTemplate>;
+  return (
+    <PageTemplate
+      title={title}
+      content={
+        <InfiniteScrollList searchText={searchText}></InfiniteScrollList>
+      }
+    ></PageTemplate>
+  );
 };
-
 export default MarketTab;
+
+// const MarketTab: React.FC = () => {
+//   const [data, setData] = useState<AppPage[]>([]);
+//   const [paging, setPaging] = useState({ searchText: "", from: 0, size: 10 });
+//   console.log("MarketTab init");
+
+//   const getData = (): Promise<AppPage[]> => {
+//     return AppPageGeneralService.GetPages(
+//       paging.searchText,
+//       paging.from,
+//       data.length === 0 ? paging.size * 2 : paging.size
+//     ).then((items: AppPage[]) => {
+//       if (items.length > 0) {
+//         setData([...data, ...items]);
+//         setPaging({
+//           ...paging,
+//           from: paging.from + items.length,
+//         });
+//       }
+//       return Promise.resolve(items);
+//     });
+//   };
+
+//   useEffect(() => {
+//     getData();
+//   }, []);
+//   let onIonInfinite = (event: any) => {
+//     getData().then((items: AppPage[]) => {
+//       event.target.complete();
+//       if (items.length === 0) {
+//         event.target.disabled = true;
+//       }
+//     });
+//   };
+//   const title = (
+//     <>
+//       <IonLabel>Market</IonLabel>
+//       <IonSearchbar
+//         value={paging.searchText}
+//         onIonChange={(e) => {
+//           setPaging({
+//             ...paging,
+//             from: 0,
+//             searchText: e.detail.value!,
+//           });
+//           getData();
+//         }}
+//         debounce={1000}
+//       ></IonSearchbar>
+//     </>
+//   );
+//   const content = (
+//     <>
+//       <IonContent>
+//         <IonList>
+//           {data.map((item: AppPage) => (
+//             <IonItem key={item.name}>
+//               <IonLabel>{item.title}</IonLabel>
+//             </IonItem>
+//           ))}
+//         </IonList>
+//         <IonInfiniteScroll onIonInfinite={onIonInfinite}>
+//           <IonInfiniteScrollContent></IonInfiniteScrollContent>
+//         </IonInfiniteScroll>
+//       </IonContent>
+//     </>
+//   );
+//   return <PageTemplate title={title} content={content}></PageTemplate>;
+// };
+// export default MarketTab;

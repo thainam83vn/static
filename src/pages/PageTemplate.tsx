@@ -9,7 +9,7 @@ import {
 import "./PageTemplate.css";
 
 interface PageTemplateProps {
-  title: string;
+  title: any;
   content: any;
 }
 
