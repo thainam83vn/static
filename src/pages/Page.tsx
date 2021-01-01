@@ -7,16 +7,16 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router";
 import ExploreContainer from "../components/containers/ExploreContainer";
 import IFrameContainer from "../components/containers/IFrameContainer";
 import PromiseContainer from "../components/PromiseContainer";
-import { AppPageGeneralService } from "../services/AppPageService";
-import { AppPage } from "../services/IAppPageService";
+import { AppGeneralService } from "../services/AppPageService";
+import { App } from "../services/IAppPageService";
 import "./Page.css";
 
-const getContainer = (name: string, page: AppPage): any => {
+const getContainer = (name: string, page: App): any => {
   switch (page?.type?.toLowerCase()) {
     case "url":
       return <IFrameContainer name={name} options={page.options} />;
@@ -27,6 +27,7 @@ const getContainer = (name: string, page: AppPage): any => {
 
 const Page: React.FC = () => {
   const { name } = useParams<{ name: string }>();
+  const [refreshTime, setRefreshTime] = useState(new Date().toISOString());
 
   return (
     <IonPage>
@@ -48,8 +49,9 @@ const Page: React.FC = () => {
         {/* <ExploreContainer name={name} /> */}
         {/* <IFrameContainer name={name} /> */}
         <PromiseContainer
-          requestDataFunc={AppPageGeneralService.GetPage.bind(undefined, name)}
-          generateComponentFunc={(page: AppPage) => {
+          refreshTime={refreshTime}
+          requestDataFunc={() => AppGeneralService.GetPage(name)}
+          generateComponentFunc={(page: App) => {
             return getContainer(name, page);
           }}
         ></PromiseContainer>

@@ -1,34 +1,49 @@
 import {
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonInfiniteScroll,
-  IonInfiniteScrollContent,
+  IonIcon,
   IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
   IonLabel,
   IonList,
-  IonContent,
 } from "@ionic/react";
-import React from "react";
-import PromiseContainer from "../components/PromiseContainer";
-import { AppPageGeneralService } from "../services/AppPageService";
-import { AppPage } from "../services/IAppPageService";
+import { ellipsisHorizontal, ellipsisVertical, archive } from "ionicons/icons";
+import React, { useEffect, useState } from "react";
+import { RefreshMyApps, UninstallApp } from "../example/reducer/actions";
+import GlobalStore, { useStore } from "../react-store/GlobalStore";
+import { App } from "../services/IAppPageService";
 import PageTemplate from "./PageTemplate";
 
 const InstalledTab: React.FC = () => {
+  const { state, dispatch } = useStore();
+  let { myApps } = state || { myApps: [] };
+  console.log("InstalledTab init", myApps);
+  useEffect(() => {
+    console.log("InstalledTab useEffect");
+    RefreshMyApps(dispatch);
+  }, []);
   const content = (
-    <PromiseContainer
-      requestDataFunc={AppPageGeneralService.GetMyPages}
-      generateComponentFunc={(appPages: AppPage[]) => (
-        <IonList>
-          {appPages.map((page) => (
-            <IonItem key={page.name} href={`pages/${page.name}`}>
-              <IonLabel>{page.title}</IonLabel>
-            </IonItem>
-          ))}
-        </IonList>
-      )}
-    ></PromiseContainer>
+    <IonList>
+      {myApps.map((page: App) => (
+        // <IonItem key={page.name} href={`pages/${page.name}`}>
+        //   <IonLabel>{page.title}</IonLabel>
+        // </IonItem>
+        <IonItemSliding key={page.name}>
+          <IonItem href={`pages/${page.name}`}>
+            <IonLabel>{page.title}</IonLabel>
+          </IonItem>
+          <IonItemOptions>
+            <IonItemOption
+              color="secondary"
+              onClick={() => UninstallApp(dispatch, { name: page.name })}
+            >
+              <IonIcon slot="top" icon={archive} />
+              Uninstall
+            </IonItemOption>
+          </IonItemOptions>
+        </IonItemSliding>
+      ))}
+    </IonList>
   );
   return <PageTemplate title="Installed" content={content}></PageTemplate>;
 };

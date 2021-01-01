@@ -1,99 +1,126 @@
-import {
-  archiveOutline,
-  archiveSharp,
-  bookmarkOutline,
-  heartOutline,
-  heartSharp,
-  mailOutline,
-  mailSharp,
-  paperPlaneOutline,
-  paperPlaneSharp,
-  trashOutline,
-  trashSharp,
-  warningOutline,
-  warningSharp,
-} from "ionicons/icons";
-import { AppPage, IAppPageService } from "./IAppPageService";
-import _ from "lodash";
+import { bookmarkOutline, mailOutline, mailSharp } from "ionicons/icons";
+import { App, IAppService } from "./IAppPageService";
+import _, { indexOf } from "lodash";
 
-const dicPages: any = {
-  Youtube: {
-    name: "Youtube",
-    title: "Youtube",
-    url: "/pages/Youtube",
-    iosIcon: mailOutline,
-    mdIcon: mailSharp,
-    type: "url",
-    options: {
-      targetUrl: "https://www.youtube.com/embed/eo_JVyY1Ra4",
+class AppMockService implements IAppService {
+  static instance: AppMockService;
+  public static Instance(): AppMockService {
+    if (!AppMockService.instance) {
+      AppMockService.instance = new AppMockService();
+    }
+    return AppMockService.instance;
+  }
+
+  simulatorDelayDuration: number = 500;
+  allPages: any = {
+    Youtube: {
+      name: "Youtube",
+      title: "Youtube",
+      url: "/pages/Youtube",
+      iosIcon: mailOutline,
+      mdIcon: mailSharp,
+      type: "url",
+      options: {
+        targetUrl: "https://www.youtube.com/embed/eo_JVyY1Ra4",
+      },
     },
-  },
-  Calculator: {
-    name: "Calculator",
-    title: "Calculator",
-    url: "/pages/Calculator",
-    iosIcon: bookmarkOutline,
-    mdIcon: bookmarkOutline,
-    type: "normal",
-  },
-};
+    Calculator: {
+      name: "Calculator",
+      title: "Calculator",
+      url: "/pages/Calculator",
+      iosIcon: bookmarkOutline,
+      mdIcon: bookmarkOutline,
+      type: "normal",
+    },
+  };
+  constructor() {
+    for (let i = 1; i < 1000000; i++) {
+      const name = `App${i}`;
+      this.allPages[name] = {
+        name,
+        title: `App ${i}`,
+        url: `/pages/app${i}`,
+        iosIcon: bookmarkOutline,
+        mdIcon: bookmarkOutline,
+        type: "normal",
+      };
+    }
+  }
 
-const myPages = Object.keys(dicPages).map((key: string) => dicPages[key]);
-const simulatorDelayDuration: number = 1000;
-const allPages: AppPage[] = [];
-for (let i = 1; i < 1000000; i++) {
-  allPages.push({
-    name: `App ${i}`,
-    title: `App ${i}`,
-    url: `/pages/app${i}`,
-    iosIcon: bookmarkOutline,
-    mdIcon: bookmarkOutline,
-    type: "normal",
-  });
-}
+  GetMyPageNamesSync(): string[] {
+    if (localStorage.getItem("myapps")) {
+      return (localStorage.getItem("myapps") || "").split(";");
+    }
+    return [];
+  }
 
-function GetMyPagesSync(): AppPage[] {
-  return myPages;
-}
+  GetMyPagesSync(): App[] {
+    return this.GetMyPageNamesSync()
+      .map((name) => this.allPages[name])
+      .filter((app) => !!app);
+  }
 
-function GetPageSync(name: string): AppPage {
-  return dicPages[name];
-}
+  GetPageSync(name: string): App {
+    return this.allPages[name];
+  }
 
-class AppPageMockService implements IAppPageService {
-  GetMyPages(): Promise<AppPage[]> {
+  response(data: any): Promise<any> {
+    return new Promise((resolve, _) => {
+      setTimeout(() => resolve(data), this.simulatorDelayDuration);
+    });
+  }
+
+  GetMyPages(): Promise<App[]> {
     console.log(`GetMyPages `);
-    return new Promise((resolve, _) => {
-      setTimeout(() => resolve(GetMyPagesSync()), simulatorDelayDuration);
-    });
+    return this.response(this.GetMyPagesSync());
   }
 
-  GetPages(searchText: string, from: number, take: number): Promise<AppPage[]> {
-    console.log(`GetPages ${searchText}-${from}-${take}`);
+  GetPages(searchText: string, from: number, take: number): Promise<App[]> {
     searchText = searchText.toLocaleLowerCase();
-    return new Promise((resolve) => {
-      setTimeout(
-        () => resolve(_.chain(allPages).filter(item => item.title.toLocaleLowerCase().includes(searchText)).drop(from).take(take).value()),
-        simulatorDelayDuration
-      );
-    });
+    const myAppNames = this.GetMyPageNamesSync();
+    console.log(`GetPages ${searchText}-${from}-${take}`, { myAppNames });
+    return this.response(
+      _.chain(this.allPages)
+        .filter(
+          (item) =>
+            item.title.toLocaleLowerCase().includes(searchText) &&
+            !myAppNames.includes(item.name)
+        )
+        .drop(from)
+        .take(take)
+        .value()
+    );
   }
 
-  SearchPages(keyword: string): Promise<AppPage[]> {
-    keyword = keyword.toLocaleLowerCase();
-    console.log(`SearchPages ${keyword}`);
-    return new Promise((resolve, _) => {
-
-      setTimeout(() => resolve(GetMyPagesSync()), simulatorDelayDuration);
-    });
-  }
-
-  GetPage(name: string): Promise<AppPage> {
+  GetPage(name: string): Promise<App> {
     console.log(`GetPage ${name}`);
-    return new Promise((resolve, _) => {
-      setTimeout(() => resolve(GetPageSync(name)), simulatorDelayDuration);
-    });
+    return this.response(this.GetPageSync(name));
+  }
+
+  AddApp(name: string): Promise<App> {
+    if (!localStorage.getItem("myapps")) {
+      localStorage.setItem("myapps", name);
+    } else {
+      localStorage.setItem(
+        "myapps",
+        `${localStorage.getItem("myapps")};${name}`
+      );
+    }
+    console.log("AddApp-", localStorage.getItem("myapps"));
+    return this.response(this.allPages[name]);
+  }
+
+  RemoveApp(name: string): Promise<App> {
+    const myAddNames = this.GetMyPageNamesSync();
+    if (myAddNames.length > 0) {
+      localStorage.setItem(
+        "myapps",
+        myAddNames.filter((myName) => myName !== name).join(";")
+      );
+    }
+    console.log("RemoveApp-", localStorage.getItem("myapps"));
+    return this.response(this.GetPageSync(name));
   }
 }
 
-export const AppPageGeneralService = new AppPageMockService();
+export const AppGeneralService = AppMockService.Instance();

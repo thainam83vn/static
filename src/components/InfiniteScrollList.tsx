@@ -1,41 +1,41 @@
 import React, { useEffect, useState } from "react";
-import "./Menu.css";
-import { AppPage } from "../services/IAppPageService";
 import {
   IonContent,
   IonList,
-  IonItem,
-  IonLabel,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
 } from "@ionic/react";
-import { title } from "process";
-import PageTemplate from "../pages/PageTemplate";
-import { AppPageGeneralService } from "../services/AppPageService";
 
 interface InfiniteScrollListProps {
+  refreshTime: string;
   searchText: string;
+  itemTemplate: (data: any) => any;
+  loadMoreFunc: (
+    searchText: string,
+    from: number,
+    take: number
+  ) => Promise<any>;
 }
 
 const InfiniteScrollList: React.FC<InfiniteScrollListProps> = ({
+  refreshTime,
   searchText,
+  itemTemplate,
+  loadMoreFunc,
 }) => {
-  const [data, setData] = useState<AppPage[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [paging, setPaging] = useState({ from: 0, size: 10 });
-  console.log("InfiniteScrollList init", { searchText });
+  console.log("InfiniteScrollList init", { searchText, refreshTime });
 
-  const getData = (currentData: AppPage[] = []): Promise<AppPage[]> => {
+  const getData = (currentData: any[] = []): Promise<any[]> => {
     console.log("InfiniteScrollList getData", {
       searchText,
       from: paging.from,
       dataLength: currentData.length,
     });
     let from = currentData.length === 0 ? 0 : paging.from;
-    return AppPageGeneralService.GetPages(
-      searchText,
-      from,
-      currentData.length === 0 ? paging.size * 2 : paging.size
-    ).then((items: AppPage[]) => {
+    let take = currentData.length === 0 ? paging.size * 2 : paging.size;
+    return loadMoreFunc(searchText, from, take).then((items: any[]) => {
       console.log("InfiniteScrollList getData", items);
       if (items.length > 0) {
         setData([...currentData, ...items]);
@@ -51,9 +51,9 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = ({
   useEffect(() => {
     console.log("InfiniteScrollList useEffect", { searchText });
     getData([]);
-  }, [searchText]);
+  }, [searchText, refreshTime]);
   let onIonInfinite = (event: any) => {
-    getData(data).then((items: AppPage[]) => {
+    getData(data).then((items: any[]) => {
       event.target.complete();
       if (items.length === 0) {
         event.target.disabled = true;
@@ -63,13 +63,7 @@ const InfiniteScrollList: React.FC<InfiniteScrollListProps> = ({
 
   return (
     <IonContent>
-      <IonList>
-        {data.map((item: AppPage) => (
-          <IonItem key={item.name}>
-            <IonLabel>{item.title}</IonLabel>
-          </IonItem>
-        ))}
-      </IonList>
+      <IonList>{data.map((item: any) => itemTemplate(item))}</IonList>
       <IonInfiniteScroll onIonInfinite={onIonInfinite}>
         <IonInfiniteScrollContent></IonInfiniteScrollContent>
       </IonInfiniteScroll>

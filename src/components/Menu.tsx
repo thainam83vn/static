@@ -13,10 +13,10 @@ import {
 import React from "react";
 import { useLocation } from "react-router-dom";
 import "./Menu.css";
-import { AppPage } from "../services/IAppPageService";
+import { App } from "../services/IAppPageService";
 
 interface MenuProps {
-  appPages: AppPage[];
+  appPages: App[];
 }
 
 const labels = ["Family", "Friends", "Notes", "Work", "Travel", "Reminders"];
@@ -29,7 +29,7 @@ const Menu: React.FC<MenuProps> = ({ appPages }) => {
         <IonList id="inbox-list">
           <IonListHeader>Inbox</IonListHeader>
           <IonNote>hi@ionicframework.com</IonNote>
-          {(appPages || []).map((appPage: AppPage, index: number) => {
+          {(appPages || []).map((appPage: App, index: number) => {
             return (
               <IonMenuToggle key={index} autoHide={false}>
                 <IonItem

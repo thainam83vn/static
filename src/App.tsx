@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
@@ -34,39 +34,44 @@ import "@ionic/react/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 import Page from "./pages/Page";
+import { useStore } from "./react-store/GlobalStore";
+import { RefreshMyApps } from "./example/reducer/actions";
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route path="/myapps" component={InstalledTab} exact={true} />
-          <Route path="/market" component={MarketTab} exact={true} />
-          <Route path="/pages/:name" component={Page} />
-          <Route path="/account" component={AccountTab} />
-          <Route
-            path="/"
-            render={() => <Redirect to="/myapps" />}
-            exact={true}
-          />
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="myapps" href="/myapps">
-            <IonIcon icon={triangle} />
-            <IonLabel>Installed</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="market" href="/market">
-            <IonIcon icon={ellipse} />
-            <IonLabel>Market</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="account" href="/account">
-            <IonIcon icon={square} />
-            <IonLabel>Account</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  console.log("App init");
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <IonTabs>
+          <IonRouterOutlet>
+            <Route path="/myapps" component={InstalledTab} exact={true} />
+            <Route path="/market" component={MarketTab} exact={true} />
+            <Route path="/pages/:name" component={Page} />
+            <Route path="/account" component={AccountTab} />
+            <Route
+              path="/"
+              render={() => <Redirect to="/myapps" />}
+              exact={true}
+            />
+          </IonRouterOutlet>
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="myapps" href="/myapps">
+              <IonIcon icon={triangle} />
+              <IonLabel>Installed</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="market" href="/market">
+              <IonIcon icon={ellipse} />
+              <IonLabel>Market</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="account" href="/account">
+              <IonIcon icon={square} />
+              <IonLabel>Account</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;

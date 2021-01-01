@@ -1,117 +1,89 @@
 import {
-  IonToolbar,
-  IonButtons,
-  IonButton,
-  IonIcon,
   IonSearchbar,
   IonItem,
   IonLabel,
-  IonList,
+  IonAlert,
+  IonContent,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
-  IonContent,
+  IonList,
 } from "@ionic/react";
-import { search } from "ionicons/icons";
 import React, { useState, useEffect, ReactNode } from "react";
 import InfiniteScrollList from "../components/InfiniteScrollList";
-import { AppPageGeneralService } from "../services/AppPageService";
-import { AppPage } from "../services/IAppPageService";
+import { InstallApp, RefreshAllApps } from "../example/reducer/actions";
+import { useStore } from "../react-store";
+import { AppGeneralService } from "../services/AppPageService";
+import { App } from "../services/IAppPageService";
 import PageTemplate from "./PageTemplate";
 
 const MarketTab: React.FC = () => {
-  console.log("MarketTab init");
-  const [searchText, setSearchText] = useState("");
+  const { state, dispatch } = useStore();
+  let { allApps, market } = state;
+  let { searchText, from, size } = market;
+  console.log("MarketTab init", { searchText, from, size, allApps });
+
+  let search = (
+    searchText: string,
+    from: number,
+    size: number,
+    isAppend: boolean
+  ): Promise<App[]> => {
+    return RefreshAllApps(dispatch, {
+      searchText,
+      from,
+      size,
+      isAppend,
+    });
+  };
+
+  const itemTemplate = (item: App) => (
+    <IonItem
+      key={item.name}
+      detail
+      onClick={() => {
+        console.log("Add app", { item });
+        InstallApp(dispatch, { name: item.name }).then(() =>
+          search(searchText, 0, size * 2, false)
+        );
+        // setAppName(item.name);
+        // setShowAlertAdd(true);
+      }}
+    >
+      <IonLabel>{item.title}</IonLabel>
+    </IonItem>
+  );
+
+  useEffect(() => {
+    search(searchText, 0, size * 2, false);
+  }, []);
+
+  let onIonInfinite = (event: any) => {
+    search(searchText, from, size, true).then((items: any[]) => {
+      event.target.complete();
+      if (items.length === 0) {
+        event.target.disabled = true;
+      }
+    });
+  };
 
   const title = (
-    <>
-      <IonLabel>Market</IonLabel>
-      <IonSearchbar
-        value={searchText}
-        onIonChange={(e) => {
-          setSearchText(e.detail.value!);
-          console.log("searchText changed", { searchText: e.detail.value! });
-        }}
-        debounce={1000}
-      ></IonSearchbar>
-    </>
+    <IonSearchbar
+      value={searchText}
+      onIonChange={(e) => {
+        console.log("searchText changed", { searchText: e.detail.value! });
+        search(e.detail.value!, 0, size * 2, false);
+      }}
+      debounce={1000}
+    ></IonSearchbar>
   );
-  return (
-    <PageTemplate
-      title={title}
-      content={
-        <InfiniteScrollList searchText={searchText}></InfiniteScrollList>
-      }
-    ></PageTemplate>
+  let content = (
+    <IonContent>
+      <IonList>{allApps.map((item: any) => itemTemplate(item))}</IonList>
+      <IonInfiniteScroll onIonInfinite={onIonInfinite}>
+        <IonInfiniteScrollContent></IonInfiniteScrollContent>
+      </IonInfiniteScroll>
+    </IonContent>
   );
+  return <PageTemplate title={title} content={content}></PageTemplate>;
 };
 export default MarketTab;
-
-// const MarketTab: React.FC = () => {
-//   const [data, setData] = useState<AppPage[]>([]);
-//   const [paging, setPaging] = useState({ searchText: "", from: 0, size: 10 });
-//   console.log("MarketTab init");
-
-//   const getData = (): Promise<AppPage[]> => {
-//     return AppPageGeneralService.GetPages(
-//       paging.searchText,
-//       paging.from,
-//       data.length === 0 ? paging.size * 2 : paging.size
-//     ).then((items: AppPage[]) => {
-//       if (items.length > 0) {
-//         setData([...data, ...items]);
-//         setPaging({
-//           ...paging,
-//           from: paging.from + items.length,
-//         });
-//       }
-//       return Promise.resolve(items);
-//     });
-//   };
-
-//   useEffect(() => {
-//     getData();
-//   }, []);
-//   let onIonInfinite = (event: any) => {
-//     getData().then((items: AppPage[]) => {
-//       event.target.complete();
-//       if (items.length === 0) {
-//         event.target.disabled = true;
-//       }
-//     });
-//   };
-//   const title = (
-//     <>
-//       <IonLabel>Market</IonLabel>
-//       <IonSearchbar
-//         value={paging.searchText}
-//         onIonChange={(e) => {
-//           setPaging({
-//             ...paging,
-//             from: 0,
-//             searchText: e.detail.value!,
-//           });
-//           getData();
-//         }}
-//         debounce={1000}
-//       ></IonSearchbar>
-//     </>
-//   );
-//   const content = (
-//     <>
-//       <IonContent>
-//         <IonList>
-//           {data.map((item: AppPage) => (
-//             <IonItem key={item.name}>
-//               <IonLabel>{item.title}</IonLabel>
-//             </IonItem>
-//           ))}
-//         </IonList>
-//         <IonInfiniteScroll onIonInfinite={onIonInfinite}>
-//           <IonInfiniteScrollContent></IonInfiniteScrollContent>
-//         </IonInfiniteScroll>
-//       </IonContent>
-//     </>
-//   );
-//   return <PageTemplate title={title} content={content}></PageTemplate>;
-// };
-// export default MarketTab;

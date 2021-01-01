@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 
 interface PromiseContainerProps {
+  refreshTime: string;
   requestDataFunc: any;
   generateComponentFunc: (data: any) => any;
 }
 
 const PromiseContainer: React.FC<PromiseContainerProps> = ({
+  refreshTime,
   requestDataFunc,
   generateComponentFunc,
 }) => {

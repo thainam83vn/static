@@ -1,4 +1,4 @@
-export interface AppPage {
+export interface App {
   name: string;
   url: string;
   iosIcon: string;
@@ -8,8 +8,10 @@ export interface AppPage {
   options?: any;
 }
 
-export interface IAppPageService {
-  GetMyPages(): Promise<AppPage[]>;
-  SearchPages(keyword: string): Promise<AppPage[]>;
-  GetPage(name: string): Promise<AppPage>;
+export interface IAppService {
+  GetMyPages(): Promise<App[]>;
+  GetPages(searchText: string, from: number, take: number): Promise<App[]>;
+  GetPage(name: string): Promise<App>;
+  AddApp(name: string): Promise<App>;
+  RemoveApp(name: string): Promise<App>;
 }
