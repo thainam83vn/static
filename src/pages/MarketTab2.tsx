@@ -1,5 +1,5 @@
 import { IonSearchbar, IonItem, IonLabel, IonAlert } from "@ionic/react";
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { useState } from "react";
 import InfiniteScrollList from "../components/InfiniteScrollList";
 import { AppGeneralService } from "../services/AppPageService";
 import { App } from "../services/IAppPageService";

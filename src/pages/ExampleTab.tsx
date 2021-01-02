@@ -1,9 +1,6 @@
 import { IonItem, IonLabel, IonList } from "@ionic/react";
 import React, { useEffect, useState } from "react";
-import PromiseContainer from "../components/PromiseContainer";
 import Example from "../example/Example";
-import { AppGeneralService } from "../services/AppPageService";
-import { App } from "../services/IAppPageService";
 import PageTemplate from "./PageTemplate";
 
 const ExampleTab: React.FC = () => {

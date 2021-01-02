@@ -1,6 +1,6 @@
 import { bookmarkOutline, mailOutline, mailSharp } from "ionicons/icons";
 import { App, IAppService } from "./IAppPageService";
-import _, { indexOf } from "lodash";
+import _ from "lodash";
 
 class AppMockService implements IAppService {
   static instance: AppMockService;

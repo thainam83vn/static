@@ -7,10 +7,10 @@ import {
   IonLabel,
   IonList,
 } from "@ionic/react";
-import { ellipsisHorizontal, ellipsisVertical, archive } from "ionicons/icons";
+import { archive } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
 import { RefreshMyApps, UninstallApp } from "../example/reducer/actions";
-import GlobalStore, { useStore } from "../react-store/GlobalStore";
+import { useStore } from "../react-store/GlobalStore";
 import { App } from "../services/IAppPageService";
 import PageTemplate from "./PageTemplate";
 

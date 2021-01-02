@@ -2,17 +2,14 @@ import {
   IonSearchbar,
   IonItem,
   IonLabel,
-  IonAlert,
   IonContent,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   IonList,
 } from "@ionic/react";
-import React, { useState, useEffect, ReactNode } from "react";
-import InfiniteScrollList from "../components/InfiniteScrollList";
+import React, { useEffect } from "react";
 import { InstallApp, RefreshAllApps } from "../example/reducer/actions";
 import { useStore } from "../react-store";
-import { AppGeneralService } from "../services/AppPageService";
 import { App } from "../services/IAppPageService";
 import PageTemplate from "./PageTemplate";
 
